@@ -1,17 +1,10 @@
 import { ScrollView } from 'react-native'
 import CategoryCard from './categoryCard'
-import { useEffect, useState } from 'react'
-import sanityClient, { urlFor } from '../sanity'
+import { urlFor } from '../sanity'
+import { useCategory } from '../queries'
 
 export default function Categories() {
-    const [categories, setCategories] = useState([])
-
-    useEffect(() => {
-        sanityClient.fetch(`*[_type == "category"]`).then(data => {
-            setCategories(data)
-        }
-        )
-    }, [])
+    const { data: categories } = useCategory()
 
     return (
         <ScrollView
@@ -29,34 +22,6 @@ export default function Categories() {
                     title={category.name}
                 />
             ))}
-            {/* <CategoryCard
-                imgUrl="https://links.papareact.com/gn7"
-                title="Food"
-            />
-            <CategoryCard
-                imgUrl="https://links.papareact.com/gn7"
-                title="Food"
-            />
-            <CategoryCard
-                imgUrl="https://links.papareact.com/gn7"
-                title="Food"
-            />
-            <CategoryCard
-                imgUrl="https://links.papareact.com/gn7"
-                title="Food"
-            />
-            <CategoryCard
-                imgUrl="https://links.papareact.com/gn7"
-                title="Food"
-            />
-            <CategoryCard
-                imgUrl="https://links.papareact.com/gn7"
-                title="Food"
-            />
-            <CategoryCard
-                imgUrl="https://links.papareact.com/gn7"
-                title="Food"
-            /> */}
         </ScrollView>
     )
 }

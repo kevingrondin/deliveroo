@@ -1,31 +1,10 @@
-import { useEffect, useState } from 'react'
 import { View, Text, ScrollView } from 'react-native'
 import { ArrowRightIcon } from 'react-native-heroicons/outline'
 import RestaurantCard from './restaurantCard'
-import sanityClient from '../sanity'
+import { useFeaturedById } from '../queries'
 
 export default function FeaturedRow({ id, title, description }) {
-    const [restaurants, setRestaurants] = useState([])
-
-    useEffect(() => {
-        sanityClient.fetch(
-            `
-                *[_type == "featured" && _id == $id]{
-                    ...,
-                    restaurants[]->{
-                        ...,
-                        dishes[]->,
-                        type-> {
-                            name
-                        }
-                    },
-                }[0]
-            `,
-            { id }
-        ).then(data => {
-            setRestaurants(data?.restaurants)
-        })
-    }, [id])
+    const { data: restaurants } = useFeaturedById(id)
 
     return (
         <View>
