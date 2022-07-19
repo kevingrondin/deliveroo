@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { View, TouchableOpacity, ScrollView, Image, Text } from 'react-native'
+import { useQuery } from "react-query";
 import { useNavigation, useRoute } from '@react-navigation/native'
 import { ArrowLeftIcon, StarIcon, LocationMarkerIcon, ChevronRightIcon, QuestionMarkCircleIcon } from 'react-native-heroicons/outline'
 import { urlFor } from '../sanity'
@@ -8,10 +9,12 @@ import { urlFor } from '../sanity'
 import DishRow from '../components/DishRow'
 import BasketIcon from '../components/basketIcon'
 import { setRestaurant } from '../features/restaurantSlice'
+import { useBasket } from '../queries'
 
 export default function RestaurantScreen() {
     const navigation = useNavigation()
     const dispatch = useDispatch()
+    const { data: basket } = useQuery(useBasket());
 
     const {
         params: {

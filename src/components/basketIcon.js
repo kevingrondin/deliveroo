@@ -1,13 +1,12 @@
 import { View, Text } from "react-native"
-import { useSelector } from "react-redux"
-import { selectBasketItems, selectBasketTotal } from "../features/basketSlice"
 import { useNavigation } from "@react-navigation/native"
 import { TouchableOpacity } from "react-native"
 import Currency from "react-currency-formatter"
+import { useGetAllArticlesFromBasket, useGetTotalPrice } from "../queries";
 
 const BasketIcon = () => {
-    const items = useSelector(selectBasketItems);
-    const basketTotal = useSelector(selectBasketTotal);
+    const items = useGetAllArticlesFromBasket()
+    const basketTotal = useGetTotalPrice()
     const navigation = useNavigation();
 
     if (items.length === 0) return null;

@@ -4,21 +4,22 @@ import Currency from "react-currency-formatter";
 import React from "react"
 import { urlFor } from "../sanity"
 import { MinusCircleIcon, PlusCircleIcon } from "react-native-heroicons/outline";
-import { useDispatch, useSelector } from "react-redux"
-import { addToBasket, selectBasketItemsWithId, removeFromBasket } from "../features/basketSlice"
+import { useGetAllArticlesFromBasketWithId, useAddArticleOnBasket, useDeleteOneArticleFromBasket } from "../queries";
 
 export default function DishRow({ id, index, name, description, price, image }) {
     const [isPressed, setIsPressed] = useState(false)
-    const items = useSelector(state => selectBasketItemsWithId(state, id))
-    const dispatch = useDispatch()
+
+    const items = useGetAllArticlesFromBasketWithId(id)
+    const addToBacket = useAddArticleOnBasket();
+    const removeToBasket = useDeleteOneArticleFromBasket()
 
     const addItemToBasket = () => {
-        dispatch(addToBasket({ id, name, description, price, image }))
+        addToBacket.mutate({ id, name, description, price, image })
     }
 
     const removeItemFromBasket = () => {
         if(!items.length > 0) return;
-        dispatch(removeFromBasket({ id }))
+        removeToBasket.mutate({ id })
     }
 
     return (
@@ -62,7 +63,7 @@ export default function DishRow({ id, index, name, description, price, image }) 
                             />
                         </TouchableOpacity>
 
-                        <Text>{items.length}</Text>
+                        <Text>{items?.length}</Text>
 
                         <TouchableOpacity>
                             <PlusCircleIcon 

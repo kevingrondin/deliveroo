@@ -1,28 +1,27 @@
 import { View, Text, SafeAreaView, TouchableOpacity, Image, ScrollView } from "react-native"
-import { useMemo, useEffect, useState } from "react"
-import { useSelector, useDispatch } from "react-redux"
+import { useSelector } from "react-redux"
 import { useNavigation } from "@react-navigation/native"
 import { selectRestaurant } from "../features/restaurantSlice"
-import { selectBasketItems, selectBasketTotal, removeFromBasket } from "../features/basketSlice"
 import { XCircleIcon } from "react-native-heroicons/outline"
 import { urlFor } from "../sanity"
 import Currency from "react-currency-formatter";
+import { useGetTotalPrice, useDeleteOneArticleFromBasket, useGroupArticlesById } from "../queries";
 
 export default function BasketScreen() {
     const navigation = useNavigation()
     const restaurant = useSelector(selectRestaurant)
-    const items = useSelector(selectBasketItems)
-    const basketTotal = useSelector(selectBasketTotal)
-    const [groupedItems, setGroupedItems] = useState([])
-    const dispatch = useDispatch()
+    const basketTotal = useGetTotalPrice()
+    const removeToBasket = useDeleteOneArticleFromBasket()
+    const groupedItems = useGroupArticlesById()
+    // const [groupedItems, setGroupedItems] = useState([])
 
-    useMemo(() => {
-        const dataGroupedItems = items.reduce((results, item) => {
-            (results[item.id] = results[item.id] || []).push(item)
-            return results
-        }, {})
-        setGroupedItems(dataGroupedItems)
-    }, [items])
+    // useMemo(() => {
+    //     const dataGroupedItems = items.reduce((results, item) => {
+    //         (results[item.id] = results[item.id] || []).push(item)
+    //         return results
+    //     }, {})
+    //     setGroupedItems(dataGroupedItems)
+    // }, [items])
     return (
         <SafeAreaView className='flex-1 bg-white'>
             <View className='flex-1 bg-gray-100'>
@@ -61,7 +60,7 @@ export default function BasketScreen() {
                         >
                             <Text className='text-[#00CCBB]'>{items.length} x</Text>
                             <Image
-                                source={{ uri: urlFor(items[0]?.image).url() }}
+                                source={{ uri: items[0] && urlFor(items[0]?.image).url() }}
                                 className='h-12 w-12 rounded-full'
                             />
                             <Text className='flex-1'>{items[0]?.name}</Text>
@@ -76,7 +75,7 @@ export default function BasketScreen() {
                             <TouchableOpacity>
                                 <Text
                                     className='text-[#00CCBB] text-xs'
-                                    onPress={() => dispatch(removeFromBasket({ id: key }))}
+                                    onPress={() => removeToBasket.mutate({ id: key })}
                                 >
                                     Remove
                                 </Text>

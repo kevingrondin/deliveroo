@@ -13,13 +13,11 @@ export function useFeatured() {
     }
     )
 }
-
 export function useCategory() {
     return useQuery("category", () => {
         return sanityClient.fetch(`*[_type == "category"]`)
     })
 }
-
 const getFeaturedById = (id) => {
     return sanityClient.fetch(
         `
@@ -41,20 +39,48 @@ export function useFeaturedById(id) {
     return useQuery(["featured", id], () => getFeaturedById(id))
 }
 
+
 export const useBasket = () => ({
     queryKey: ["basket"],
-    queryFn: () => { return [] },
+    queryFn: () => [],
 })
-
-export const useAddArticleOnBasket = (article) => {
+export const useAddArticleOnBasket = () => {
     const qc = useQueryClient()
-    return useMutation(() => {
+    return useMutation((article) => {
         qc.setQueryData(["basket"], [...qc.getQueryData(["basket"]), article])
     })
 }
-export const useRemoveArticleFromBasket = (id) => {
+export const useGroupArticlesById = () => {
     const qc = useQueryClient()
-    return useMutation(() => {
+    const dataGroupedItems = qc.getQueryData(["basket"]).reduce((results, item) => {
+        (results[item.id] = results[item.id] || []).push(item)
+        return results
+    }, {})
+    return dataGroupedItems
+    return qc.getQueryData(["basket"]).reduce((acc, article) => {
+        (acc[article.id] = article[article.id] || []).push(article)
+        return acc
+    }, {})
+}
+
+export const useDeleteOneArticleFromBasket = () => {
+    const qc = useQueryClient()
+    return useMutation(({id}) => {
+        const idQty = qc.getQueryData(["basket"]).filter(a => a.id === id).length
+        if (idQty > 1) {
+            const articles = qc.getQueryData(["basket"]).filter(article => article.id === id)
+            const articleFiltered = qc.getQueryData(["basket"]).filter(article => article.id !== id)
+            const articlesToAdd = Array.from({length: idQty - 1}, () => articles[0])
+            const articlesEdited = [...articleFiltered, ...articlesToAdd]
+            qc.setQueryData(["basket"], articlesEdited)
+        } else {
+            qc.setQueryData(["basket"], qc.getQueryData(["basket"]).filter(article => article.id !== id))
+        }
+    })
+}
+export const useRemoveArticleFromBasket = () => {
+    const qc = useQueryClient()
+    return useMutation((id) => {
         qc.setQueryData(["basket"], qc.getQueryData(["basket"]).filter(article => article.id !== id))
     })
 }
@@ -64,6 +90,10 @@ export const useGetAllArticlesFromBasket = () => {
 }
 export const useGetAllArticlesFromBasketWithId = (id) => {
     const qc = useQueryClient()
-    return qc.getQueryData(["basket"]).filter(article => article.id === id)
+    return qc.getQueryData(["basket"])?.filter(article => article.id === id) ?? []
+}
+export const useGetTotalPrice = () => {
+    const qc = useQueryClient()
+    return qc.getQueryData(["basket"])?.reduce((acc, article) => acc + article.price, 0) ?? 0
 }
 
